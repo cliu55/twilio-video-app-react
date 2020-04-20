@@ -8,25 +8,38 @@ import SearchIcon from '@material-ui/icons/Search';
 import url from 'url';
 
 export default class YoutubeVideo extends Component {
-  incomingMsgCount = 0;
-
+  incomingEventCount = 0;
+  prevTime = 0;
   constructor(props) {
     super(props);
     this.state = {
       client: socket(),
-      textFieldValue: '',
+      urlFieldValue: '',
     };
 
     this.onSendMessage = this.onSendMessage.bind(this);
+    this.onSendVideo = this.onSendVideo.bind(this);
+    this.onSendVideoState = this.onSendVideoState.bind(this);
+    this.onSendVideoTime = this.onSendVideoTime.bind(this);
+
     this.onMessageReceived = this.onMessageReceived.bind(this);
+    this.onVideoUrlReceived = this.onVideoUrlReceived.bind(this);
+    this.onVideoStateReceived = this.onVideoStateReceived.bind(this);
+    this.onVideoTimeReceived = this.onVideoTimeReceived.bind(this);
+
     this.loadVideo = this.loadVideo.bind(this);
+    this.onPlayerReady = this.onPlayerReady.bind(this);
     this.onPlayerStateChange = this.onPlayerStateChange.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.search = this.search.bind(this);
+    this.onVideoUrlChange = this.onVideoUrlChange.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.startInterval = this.startInterval.bind(this);
   }
 
   componentDidMount() {
-    this.state.client.registerHandler(this.onMessageReceived);
+    this.state.client.registerHandler('message', this.onMessageReceived);
+    this.state.client.registerHandler('changeVideo', this.onVideoUrlReceived);
+    this.state.client.registerHandler('changeVideoState', this.onVideoStateReceived);
+    this.state.client.registerHandler('changeVideoTime', this.onVideoTimeReceived);
 
     // On mount, check to see if the API script is already loaded
     if (!window.YT) {
@@ -49,10 +62,30 @@ export default class YoutubeVideo extends Component {
     this.state.client.message(msg);
   }
 
-  onMessageReceived(entry) {
-    if (entry === this.player.getPlayerState()) return;
-    this.incomingMsgCount++;
-    switch (entry) {
+  onSendVideo(url) {
+    this.state.client.changeVideo(url);
+  }
+
+  onSendVideoState(state) {
+    this.state.client.changeVideoState(state);
+  }
+
+  onSendVideoTime(time) {
+    this.state.client.changeVideoTime(time);
+  }
+
+  onMessageReceived(msg) {}
+
+  onVideoUrlReceived(url) {
+    this.incomingEventCount++;
+    this.player.loadVideoById(url);
+    this.player.stopVideo();
+  }
+
+  onVideoStateReceived(state) {
+    if (state === this.player.getPlayerState()) return;
+    this.incomingEventCount++;
+    switch (state) {
       case -1: //unstarted
         this.player.playVideo();
         break;
@@ -68,21 +101,21 @@ export default class YoutubeVideo extends Component {
       case 5: // video cued
         break;
       default:
-        this.player.loadVideoById(entry);
-        this.player.stopVideo();
         break;
     }
   }
 
-  // YOUTUBE RELATED
-  // player.seekTo(seconds:Number, allowSeekAhead:Boolean)
-  // player.getCurrentTime():Number
+  onVideoTimeReceived(time) {
+    this.incomingEventCount++;
+    this.player.seekTo(time);
+  }
+
+  // YOUTUBE IFRAME RELATED METHODS
   loadVideo() {
-    // the Player object is created uniquely based on the id in props
     this.player = new window.YT.Player('player', {
       height: '390',
       width: '640',
-      videoId: 'Ojcub8txAUE', //TODO: replace with something else
+      videoId: 'A7fZp9dwELo', //TODO: tempoary video, replace with something else
       events: {
         onReady: this.onPlayerReady,
         onStateChange: this.onPlayerStateChange,
@@ -92,39 +125,58 @@ export default class YoutubeVideo extends Component {
 
   onPlayerReady(event) {
     // event.target.playVideo();
+    this.startInterval();
   }
 
   onPlayerStateChange(event) {
-    if (this.incomingMsgCount) {
-      this.incomingMsgCount--;
+    console.log('onPlayerStateChange: ', event.data);
+    if (this.incomingEventCount) {
+      this.incomingEventCount--;
       return;
     }
+
+    // TODO: Create ENUM for player state
     switch (event.data) {
       case -1: //unstarted
         this.player.playVideo();
+        this.onSendVideoState(event.data);
+        break;
       case 0: //ended
       case 1: //playing
       case 2: //paused
       case 3: //buffering
       case 5: // video cued
-        this.onSendMessage(event.data);
+        this.onSendVideoState(event.data);
         break;
       default:
         break;
     }
   }
 
-  handleChange(event) {
-    this.setState({ textFieldValue: event.target.value });
+  onVideoUrlChange(event) {
+    this.setState({ urlFieldValue: event.target.value });
   }
 
-  search(event) {
+  onSearch(event) {
+    // Determine if pressed key is ENTER
     if (event.keyCode === 13) {
-      const { v } = url.parse(this.state.textFieldValue, true).query;
-      this.onSendMessage(v);
+      const { v } = url.parse(this.state.urlFieldValue, true).query;
+      this.onSendVideo(v);
       this.player.loadVideoById(v);
       this.player.stopVideo();
     }
+  }
+
+  startInterval() {
+    setInterval(() => {
+      const currTime = this.player.getCurrentTime();
+      if (Math.round(Math.abs(this.prevTime - currTime)) > 1) {
+        this.onSendVideoTime(currTime);
+      }
+      if (this.player.getPlayerState() === 1) {
+        this.prevTime = currTime;
+      }
+    }, 1000);
   }
 
   render() {
@@ -136,9 +188,9 @@ export default class YoutubeVideo extends Component {
           </Grid>
           <Grid item xs={10}>
             <TextField
-              value={this.state.textFieldValue}
-              onKeyDown={this.search}
-              onChange={this.handleChange}
+              value={this.state.urlFieldValue}
+              onKeyDown={this.onSearch}
+              onChange={this.onVideoUrlChange}
               id="input-with-icon-grid"
               label="Paste URL Here"
               fullWidth
