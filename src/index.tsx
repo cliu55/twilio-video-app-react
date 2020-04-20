@@ -2,9 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { CssBaseline } from '@material-ui/core';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { MuiThemeProvider, makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
 
 import App from './App';
+import YoutubeVideo from './components/YoutubeVideo/YoutubeVideo';
 import AppStateProvider, { useAppState } from './state';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectOptions } from 'twilio-video';
@@ -35,14 +37,35 @@ const connectionOptions: ConnectOptions = {
   preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
 };
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1,
+    },
+    paper: {
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      color: theme.palette.text.secondary,
+    },
+  })
+);
+
 const VideoApp = () => {
   const { error, setError } = useAppState();
+  const classes = useStyles();
 
   return (
-    <VideoProvider options={connectionOptions} onError={setError}>
-      <ErrorDialog dismissError={() => setError(null)} error={error} />
-      <App />
-    </VideoProvider>
+    <div className={classes.root}>
+      <Grid container spacing={3}>
+        <YoutubeVideo />
+        <Grid item xs={6}>
+          <VideoProvider options={connectionOptions} onError={setError}>
+            <ErrorDialog dismissError={() => setError(null)} error={error} />
+            <App />
+          </VideoProvider>
+        </Grid>
+      </Grid>
+    </div>
   );
 };
 
