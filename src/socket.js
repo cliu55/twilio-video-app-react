@@ -11,20 +11,36 @@ export default function() {
     socket.off(eventName);
   }
 
-  function message(message) {
-    socket.emit('message', message);
+  function message(chatroomName, message) {
+    socket.emit('message', { chatroomName, message });
   }
 
-  function changeVideo(url) {
-    socket.emit('changeVideo', url);
+  function changeVideo(chatroomName, url) {
+    socket.emit('changeVideo', { chatroomName, url });
   }
 
-  function changeVideoState(status) {
-    socket.emit('changeVideoState', status);
+  function changeVideoState(chatroomName, status) {
+    socket.emit('changeVideoState', { chatroomName, status });
   }
 
-  function changeVideoTime(time) {
-    socket.emit('changeVideoTime', time);
+  function changeVideoTime(chatroomName, time) {
+    socket.emit('changeVideoTime', { chatroomName, time });
+  }
+
+  function changeRoomMaster(chatroomName, roomMaster) {
+    socket.emit('changeRoomMaster', { chatroomName, roomMaster });
+  }
+
+  function register(name) {
+    socket.emit('register', name);
+  }
+
+  function join(chatroomName, userName, cb) {
+    socket.emit('join', chatroomName, userName, cb);
+  }
+
+  function leave(chatroomName) {
+    socket.emit('leave', chatroomName);
   }
 
   return {
@@ -34,5 +50,9 @@ export default function() {
     changeVideo,
     changeVideoState,
     changeVideoTime,
+    changeRoomMaster,
+    register,
+    join,
+    leave,
   };
 }

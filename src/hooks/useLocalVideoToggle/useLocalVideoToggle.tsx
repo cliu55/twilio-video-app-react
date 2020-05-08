@@ -13,6 +13,7 @@ export default function useLocalVideoToggle() {
   const toggleVideoEnabled = useCallback(() => {
     if (videoTrack) {
       if (localParticipant) {
+        // TODO: unhandled exception here
         const localTrackPublication = localParticipant.unpublishTrack(videoTrack);
         // TODO: remove when SDK implements this event. See: https://issues.corp.twilio.com/browse/JSDK-2592
         localParticipant.emit('trackUnpublished', localTrackPublication);

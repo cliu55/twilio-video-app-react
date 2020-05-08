@@ -56,15 +56,10 @@ const VideoApp = () => {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={3}>
-        <YoutubeVideo />
-        <Grid item xs={6}>
-          <VideoProvider options={connectionOptions} onError={setError}>
-            <ErrorDialog dismissError={() => setError(null)} error={error} />
-            <App />
-          </VideoProvider>
-        </Grid>
-      </Grid>
+      <VideoProvider options={connectionOptions} onError={setError}>
+        <ErrorDialog dismissError={() => setError(null)} error={error} />
+        <App />
+      </VideoProvider>
     </div>
   );
 };
