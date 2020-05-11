@@ -3,10 +3,8 @@ import ReactDOM from 'react-dom';
 
 import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 
 import App from './App';
-import YoutubeVideo from './components/YoutubeVideo/YoutubeVideo';
 import AppStateProvider, { useAppState } from './state';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectOptions } from 'twilio-video';

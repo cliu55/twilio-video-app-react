@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function MenuBar() {
   const classes = useStyles();
   const { URLRoomName } = useParams();
-  const { user, getToken, isFetching } = useAppState();
+  const { user, getToken, isFetching, roomId } = useAppState();
   const { isConnecting, connect } = useVideoContext();
   const roomState = useRoomState();
 
@@ -87,9 +87,11 @@ export default function MenuBar() {
     event.preventDefault();
     // If this app is deployed as a twilio function, don't change the URL because routing isn't supported.
     if (!window.location.origin.includes('twil.io')) {
-      window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}${window.location.search || ''}`));
+      // window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}${window.location.search || ''}`));
+      window.history.replaceState(null, '', window.encodeURI(`/room/${roomId.current}${window.location.search || ''}`));
     }
-    getToken(name, roomName).then(token => connect(token));
+    // getToken(name, roomName).then(token => connect(token));
+    getToken(name, roomId.current).then(token => connect(token));
   };
 
   return (
@@ -111,14 +113,14 @@ export default function MenuBar() {
                 {user.displayName}
               </Typography>
             )}
-            <TextField
+            {/* <TextField
               id="menu-room"
               label="Room"
               className={classes.textField}
-              value={roomName}
+              value={roomId.current}
               onChange={handleRoomNameChange}
               margin="dense"
-            />
+            /> */}
             <Button
               className={classes.joinButton}
               type="submit"
@@ -126,7 +128,7 @@ export default function MenuBar() {
               variant="contained"
               disabled={isConnecting || !name || !roomName || isFetching}
             >
-              Join Room
+              Enable Video Chat
             </Button>
             {(isConnecting || isFetching) && <CircularProgress className={classes.loadingSpinner} />}
           </form>
@@ -135,9 +137,9 @@ export default function MenuBar() {
         )}
         <div className={classes.rightButtonContainer}>
           <LocalAudioLevelIndicator />
-          <FlipCameraButton />
+          {/* <FlipCameraButton /> */}
           <ToggleFullscreenButton />
-          <Menu />
+          {/* <Menu /> */}
         </div>
       </Toolbar>
     </AppBar>

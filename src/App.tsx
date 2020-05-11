@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import YoutubeVideo from './components/YoutubeVideo/YoutubeVideo';
+import Box from '@material-ui/core/Box';
+import YoutubeRoom from './components/YoutubeRoom/YoutubeRoom';
 
 import Controls from './components/Controls/Controls';
 import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview';
@@ -9,6 +9,7 @@ import MenuBar from './components/MenuBar/MenuBar';
 import ReconnectingNotification from './components/ReconnectingNotification/ReconnectingNotification';
 import Room from './components/Room/Room';
 import useVideoContext from './hooks/useVideoContext/useVideoContext';
+import YoutubeRoomStateProvider from './components/YoutubeRoom/YoutubeRoomStateProvider';
 
 import useHeight from './hooks/useHeight/useHeight';
 import useRoomState from './hooks/useRoomState/useRoomState';
@@ -45,16 +46,18 @@ export default function App() {
   return (
     <Container style={{ height }}>
       <MenuBar />
-      <Grid container spacing={3}>
-        <Grid item xs={2}>
+      <Box display="flex">
+        <Box width="20%" m={1}>
           <Main>
             {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}
             <Controls />
           </Main>
-        </Grid>
-        {/* {name ? <YoutubeVideo roomId ={name} userName ={identity}/> : null} */}
-        <YoutubeVideo roomId={'123'} userName={'Chris' + Math.floor(Math.random() * 10)} />
-      </Grid>
+        </Box>
+        <YoutubeRoomStateProvider>
+          {/* {name ? <YoutubeRoom roomId ={name} userName ={identity}/> : null} */}
+          <YoutubeRoom />
+        </YoutubeRoomStateProvider>
+      </Box>
       <ReconnectingNotification />
     </Container>
   );

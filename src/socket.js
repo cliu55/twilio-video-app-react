@@ -31,10 +31,6 @@ export default function() {
     socket.emit('changeRoomMaster', { chatroomName, roomMaster });
   }
 
-  function register(name) {
-    socket.emit('register', name);
-  }
-
   function join(chatroomName, userName, cb) {
     socket.emit('join', chatroomName, userName, cb);
   }
@@ -51,7 +47,6 @@ export default function() {
     changeVideoState,
     changeVideoTime,
     changeRoomMaster,
-    register,
     join,
     leave,
   };

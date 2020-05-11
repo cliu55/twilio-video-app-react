@@ -1,18 +1,32 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useRef } from 'react';
 import { TwilioError } from 'twilio-video';
 import useFirebaseAuth from './useFirebaseAuth/useFirebaseAuth';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
 import { User } from 'firebase';
+import { v4 as uuidv4 } from 'uuid';
+import generateUserName from './utils';
 
 export interface StateContextType {
   error: TwilioError | null;
   setError(error: TwilioError | null): void;
   getToken(name: string, room: string, passcode?: string): Promise<string>;
-  user?: User | null | { displayName: undefined; photoURL: undefined; passcode?: string };
+  user?:
+    | User
+    | null
+    | { displayName: undefined; photoURL: undefined; passcode?: string }
+    | { displayName: string; photoURL: string; userId: string };
+  setUser?(
+    user:
+      | User
+      | null
+      | { displayName: undefined; photoURL: undefined; passcode?: string }
+      | { displayName: string; photoURL: string; userId: string }
+  ): void;
   signIn?(passcode?: string): Promise<void>;
   signOut?(): Promise<void>;
   isAuthReady?: boolean;
   isFetching: boolean;
+  roomId: React.MutableRefObject<string>;
 }
 
 export const StateContext = createContext<StateContextType>(null!);
@@ -29,11 +43,19 @@ export const StateContext = createContext<StateContextType>(null!);
 export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
   const [error, setError] = useState<TwilioError | null>(null);
   const [isFetching, setIsFetching] = useState(false);
+  const [user, setUser] = useState<
+    | User
+    | null
+    | { displayName: undefined; photoURL: undefined; passcode?: string }
+    | { displayName: string; photoURL: string; userId: string }
+  >({ displayName: generateUserName(), photoURL: '', userId: '' });
+  const roomId = useRef(uuidv4());
 
   let contextValue = {
     error,
     setError,
     isFetching,
+    roomId,
   } as StateContextType;
 
   if (process.env.REACT_APP_SET_AUTH === 'firebase') {
@@ -49,6 +71,9 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
   } else {
     contextValue = {
       ...contextValue,
+      user,
+      setUser,
+      roomId,
       getToken: async (identity, roomName) => {
         const headers = new window.Headers();
         const endpoint = process.env.REACT_APP_TOKEN_ENDPOINT || '/token';

@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme: Theme) =>
     container: {
       display: 'flex',
       position: 'absolute',
-      right: '50%',
+      right: '90%',
       transform: 'translate(50%, 30px)',
       bottom: '50px',
       zIndex: 1,
