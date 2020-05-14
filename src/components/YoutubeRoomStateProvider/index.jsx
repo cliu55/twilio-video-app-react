@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useRef } from 'react';
-import socket from '../../../socket';
+import socket from '../../socket';
 
 export const YoutubeRoomContext = createContext(null);
 

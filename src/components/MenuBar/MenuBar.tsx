@@ -10,6 +10,7 @@ import ToggleFullscreenButton from './ToggleFullScreenButton/ToggleFullScreenBut
 import Toolbar from '@material-ui/core/Toolbar';
 import Menu from './Menu/Menu';
 
+import UserProfile from '../YoutubeRoom/UserProfile';
 import { useAppState } from '../../state';
 import { useParams } from 'react-router-dom';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
@@ -91,7 +92,7 @@ export default function MenuBar() {
       window.history.replaceState(null, '', window.encodeURI(`/room/${roomId.current}${window.location.search || ''}`));
     }
     // getToken(name, roomName).then(token => connect(token));
-    getToken(name, roomId.current).then(token => connect(token));
+    getToken(user?.displayName || '', roomId.current).then(token => connect(token));
   };
 
   return (
@@ -108,11 +109,11 @@ export default function MenuBar() {
                 onChange={handleNameChange}
                 margin="dense"
               />
-            ) : (
-              <Typography className={classes.displayName} variant="body1">
-                {user.displayName}
-              </Typography>
-            )}
+            ) : null
+            // <Typography className={classes.displayName} variant="body1">
+            //   {user.displayName}
+            // </Typography>
+            }
             {/* <TextField
               id="menu-room"
               label="Room"
@@ -133,9 +134,14 @@ export default function MenuBar() {
             {(isConnecting || isFetching) && <CircularProgress className={classes.loadingSpinner} />}
           </form>
         ) : (
-          <h3>{roomName}</h3>
+          ''
+          // <h3>{!user?.displayName ? "" : user.displayName}</h3>
         )}
         <div className={classes.rightButtonContainer}>
+          <Typography className={classes.displayName} variant="body1" align="right">
+            {!user?.displayName ? '' : user.displayName}
+          </Typography>
+          <UserProfile />
           <LocalAudioLevelIndicator />
           {/* <FlipCameraButton /> */}
           <ToggleFullscreenButton />

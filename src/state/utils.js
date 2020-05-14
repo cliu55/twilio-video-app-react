@@ -117,10 +117,33 @@ const nouns = [
   'swan',
 ];
 
-export default function generateUserName() {
+export function generateUserName() {
   let adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
   let noun = nouns[Math.floor(Math.random() * nouns.length)];
   noun = noun.charAt(0).toUpperCase() + noun.substring(1);
   adjective = adjective.charAt(0).toUpperCase() + adjective.substring(1);
   return adjective + noun;
+}
+
+const photoUrls = [
+  'https://images.unsplash.com/photo-1552119471-733ba8c8250a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1504365951685-1f6232be17a2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1530041539828-114de669390e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
+  'https://images.unsplash.com/photo-1514866955434-f091a9c8716f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
+  'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=640&q=80',
+  'https://images.unsplash.com/photo-1549901139-68e9777f8795?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=649&q=80',
+  'https://images.unsplash.com/photo-1445499348736-29b6cdfc03b9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+  'https://images.unsplash.com/photo-1555557135-0971899f7e3c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=700&q=80',
+  'https://images.unsplash.com/photo-1559538619-79636b249e31?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60',
+  'https://images.unsplash.com/photo-1557928255-2cf6e622d2af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
+];
+// const photoUrls = [
+//   "../../../public/users/rick.jpg",
+//   "../../../public/users/daryl.jpg",
+//   "../../../public/users/carol.jpg",
+//   "../../../public/users/negan.jpeg",
+// ]
+
+export function generatePhotoUrl() {
+  return photoUrls[Math.floor(Math.random() * photoUrls.length)];
 }

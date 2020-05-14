@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 
 import { useAppState } from '../../state';
-import { useYoutubeRoomState } from './YoutubeRoomStateProvider';
+import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 
 export default function SearchBar() {
   const {

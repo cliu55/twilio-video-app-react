@@ -9,7 +9,7 @@ import MenuBar from './components/MenuBar/MenuBar';
 import ReconnectingNotification from './components/ReconnectingNotification/ReconnectingNotification';
 import Room from './components/Room/Room';
 import useVideoContext from './hooks/useVideoContext/useVideoContext';
-import YoutubeRoomStateProvider from './components/YoutubeRoom/YoutubeRoomStateProvider';
+import YoutubeRoomStateProvider from './components/YoutubeRoomStateProvider';
 
 import useHeight from './hooks/useHeight/useHeight';
 import useRoomState from './hooks/useRoomState/useRoomState';
@@ -45,20 +45,20 @@ export default function App() {
 
   return (
     <Container style={{ height }}>
-      <MenuBar />
-      <Box display="flex">
-        <Box width="20%" m={1}>
-          <Main>
-            {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}
-            <Controls />
-          </Main>
-        </Box>
-        <YoutubeRoomStateProvider>
+      <YoutubeRoomStateProvider>
+        <MenuBar />
+        <Box display="flex">
+          <Box width="20%" m={1}>
+            <Main>
+              {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}
+              <Controls />
+            </Main>
+          </Box>
           {/* {name ? <YoutubeRoom roomId ={name} userName ={identity}/> : null} */}
           <YoutubeRoom />
-        </YoutubeRoomStateProvider>
-      </Box>
-      <ReconnectingNotification />
+        </Box>
+        <ReconnectingNotification />
+      </YoutubeRoomStateProvider>
     </Container>
   );
 }

@@ -3,9 +3,9 @@ import url from 'url';
 
 import Box from '@material-ui/core/Box';
 
-import AspectRatio from './AspectRatio/AspectRatio';
+import AspectRatio from '../AspectRatio/AspectRatio';
 import { useAppState } from '../../state';
-import { useYoutubeRoomState } from './YoutubeRoomStateProvider';
+import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 
 export default function YoutubePlayer({ bRoomMaster }) {
   const {
@@ -13,8 +13,9 @@ export default function YoutubePlayer({ bRoomMaster }) {
     user,
   } = useAppState();
   const { client, player, playerReady, setPlayerReady, roomMaster, youtubeURL, setYoutubeURL } = useYoutubeRoomState();
-  let prevTime = useRef(0);
-  let interval = useRef(null);
+  const prevTime = useRef(0);
+  const interval = useRef(null);
+  const leaderPaused = useRef(false);
 
   // Need to rebind all listeners when context change because of listener scopes
   useEffect(() => {
@@ -63,8 +64,9 @@ export default function YoutubePlayer({ bRoomMaster }) {
 
   useEffect(() => {
     if (playerReady && youtubeURL) {
-      player.current.loadVideoById(youtubeURL);
-      player.current.stopVideo();
+      // player.current.loadVideoById(youtubeURL);
+      // player.current.stopVideo();
+      player.current.cueVideoById(youtubeURL);
     }
   }, [youtubeURL, playerReady]);
 
@@ -81,20 +83,31 @@ export default function YoutubePlayer({ bRoomMaster }) {
   const onVideoUrlReceived = newUrl => {
     if (!playerReady) return;
     setYoutubeURL(newUrl);
+    // this is to prevent the situation where a user that pause video,
+    // and someone in the room change the video and play, then when the
+    // user unpause the video they
+    // leaderPaused.current = false;
   };
 
   const onVideoStateReceived = state => {
     if (!playerReady || state === player.current.getPlayerState() || isRoomMaster(roomMaster, user)) return;
+    const currState = player.current.getPlayerState();
+    // if user's playback is paused or buffering and room master didn't initiate this state don't do anything
+    if ((currState === 2 || currState === 3) && !leaderPaused.current) return;
+    // only set leaderPaused to true if Room Master paused the
+    leaderPaused.current = false;
     switch (state) {
       case -1: //unstarted
         player.current.stopVideo();
         break;
       case 0: //ended
+        // TODO: queue next video
         break;
       case 1: //playing
         player.current.playVideo();
         break;
       case 2: //paused
+        leaderPaused.current = true;
       case 3: //buffering
         player.current.pauseVideo();
         break;
@@ -108,6 +121,9 @@ export default function YoutubePlayer({ bRoomMaster }) {
 
   const onVideoTimeReceived = time => {
     if (!playerReady || isRoomMaster(roomMaster, user)) return;
+    const currState = player.current.getPlayerState();
+    // if user's playback is paused or buffering and room master didn't initiate this state don't do anything
+    if (currState === 2 && !leaderPaused.current) return;
     if (Math.round(Math.abs(player.current.getCurrentTime() - time)) > 1) {
       player.current.seekTo(time);
     }

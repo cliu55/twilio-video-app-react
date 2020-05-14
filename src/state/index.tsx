@@ -4,7 +4,7 @@ import useFirebaseAuth from './useFirebaseAuth/useFirebaseAuth';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
 import { User } from 'firebase';
 import { v4 as uuidv4 } from 'uuid';
-import generateUserName from './utils';
+import { generateUserName, generatePhotoUrl } from './utils';
 
 export interface StateContextType {
   error: TwilioError | null;
@@ -48,7 +48,7 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
     | null
     | { displayName: undefined; photoURL: undefined; passcode?: string }
     | { displayName: string; photoURL: string; userId: string }
-  >({ displayName: generateUserName(), photoURL: '', userId: '' });
+  >({ displayName: generateUserName(), photoURL: generatePhotoUrl(), userId: '' });
   const roomId = useRef(uuidv4());
 
   let contextValue = {

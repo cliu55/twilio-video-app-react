@@ -9,10 +9,15 @@ import Divider from '@material-ui/core/Divider';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
 
+import TextInput from './TextInput';
+import EmojiInput from './EmojiInput';
+import GIFInput from './GIFInput';
 import { useAppState } from '../../state';
-import { useYoutubeRoomState } from './YoutubeRoomStateProvider';
+import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 
 const ChatPanel = styled.div`
   position: relative;
@@ -50,7 +55,8 @@ export default function ChatWindow() {
     roomId: { current: roomId },
   } = useAppState();
   const { client } = useYoutubeRoomState();
-  let panel = useRef(null);
+  const panel = useRef(null);
+  const textfield = useRef(null);
 
   const [chatHistory, setChatHistory] = useState([]);
   const [messageFieldValue, setMessageFieldValue] = useState('');
@@ -64,12 +70,13 @@ export default function ChatWindow() {
   }, [chatHistory]);
 
   const onMessageReceived = entry => {
+    console.log('msg received', entry);
     setChatHistory(prev => prev.concat(entry));
   };
 
   const onSendMessage = () => {
-    if (messageFieldValue === '') return;
-    client.message(roomId, messageFieldValue);
+    if (messageFieldValue.trim().length == 0) return;
+    client.message(roomId, messageFieldValue, 'text');
     setMessageFieldValue('');
   };
 
@@ -77,22 +84,38 @@ export default function ChatWindow() {
     panel.current.scrollTop = panel.current.scrollHeight;
   };
 
+  const emojiInserted = messageWithEmoji => {
+    setMessageFieldValue(messageWithEmoji);
+    textfield.current.focus();
+  };
+
+  const onSenGif = url => {
+    client.message(roomId, url, 'gif');
+  };
+
   return (
-    <Box width="30%" m={1}>
+    <Box m={1} height="90%">
       <ChatPanel>
         <Scrollable ref={panel}>
           <List>
-            {chatHistory.map(({ user, message, event }, i) => {
+            {chatHistory.map(({ user, message, event, type }, i) => {
               return [
                 <NoDots>
                   <ListItem key={i} style={{ color: '#fafafa' }}>
+                    <ListItemAvatar>
+                      <Avatar src={user.photoURL} />
+                    </ListItemAvatar>
                     <ListItemText
                       primary={`${user.name} ${event || ''}`}
                       secondary={
                         <React.Fragment>
-                          <Typography component="span" variant="body2" color="textPrimary">
-                            {message}
-                          </Typography>
+                          {type === 'gif' ? (
+                            <img src={message} alt="" width="60%" height="60%" />
+                          ) : (
+                            <Typography component="span" variant="body2" color="textPrimary">
+                              {message}
+                            </Typography>
+                          )}
                         </React.Fragment>
                       }
                     />
@@ -104,22 +127,17 @@ export default function ChatWindow() {
           </List>
         </Scrollable>
         <InputPanel>
-          <TextField
-            textareastyle={{ color: '#fafafa' }}
-            hintstyle={{ color: '#fafafa' }}
-            floatinglabelstyle={{ color: '#fafafa' }}
-            hinttext="Enter a message."
-            floatinglabeltext="Enter a message."
-            multiline
-            rows={4}
-            rowsMax={4}
-            onChange={e => setMessageFieldValue(e.target.value)}
-            value={messageFieldValue}
-            onKeyPress={e => (e.key === 'Enter' ? onSendMessage() : null)}
+          <TextInput
+            textfield={textfield}
+            messageFieldValue={messageFieldValue}
+            setMessageFieldValue={setMessageFieldValue}
+            onSendMessage={onSendMessage}
           />
           <Fab color="primary" aria-label="add" onClick={onSendMessage} size="small" style={{ marginLeft: 20 }}>
-            <SendIcon style={{ fontSize: 18 }} className="material-icons" />
+            <SendIcon style={{ fontSize: 18 }} />
           </Fab>
+          <EmojiInput value={messageFieldValue} onSelection={emojiInserted} />
+          <GIFInput onSelection={onSenGif} />
         </InputPanel>
       </ChatPanel>
     </Box>
