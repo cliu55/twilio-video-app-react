@@ -27,6 +27,8 @@ export interface StateContextType {
   isAuthReady?: boolean;
   isFetching: boolean;
   roomId: React.MutableRefObject<string>;
+  drawerOpen?: boolean;
+  setDrawerOpen?(drawerOpen: boolean): void;
 }
 
 export const StateContext = createContext<StateContextType>(null!);
@@ -49,6 +51,7 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
     | { displayName: undefined; photoURL: undefined; passcode?: string }
     | { displayName: string; photoURL: string; userId: string }
   >({ displayName: generateUserName(), photoURL: generatePhotoUrl(), userId: '' });
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const roomId = useRef(uuidv4());
 
   let contextValue = {
@@ -74,6 +77,8 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
       user,
       setUser,
       roomId,
+      drawerOpen,
+      setDrawerOpen,
       getToken: async (identity, roomName) => {
         const headers = new window.Headers();
         const endpoint = process.env.REACT_APP_TOKEN_ENDPOINT || '/token';

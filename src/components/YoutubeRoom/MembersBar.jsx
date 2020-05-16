@@ -44,7 +44,7 @@ export default function MembersBar({ members, setMembers }) {
   const displayRoomMembers = () => {
     let users = members.filter(m => m.memberId !== user.userId);
     return users.map((m, i) => (
-      <Box ml={1}>
+      <Box ml={1} key={i}>
         {/* <Tooltip title={m.userName}>
           <ListItemAvatar>
             <Avatar alt={m.userName} src={m.photoURL} />
@@ -67,30 +67,30 @@ export default function MembersBar({ members, setMembers }) {
   // }
 
   return (
-    <Box display="flex" flexDirection="row" alignItems="center" height="10%" justifyContent="space-between">
-      {/* <Dialog open={showEditDialog} onClose={handleEditDialogClose}>
-          <DialogTitle id="simple-dialog-title">Edit Display Name</DialogTitle>
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <Box m={2}>
-              <TextField 
-                value={newName} 
-                placeholder={user.displayName}
-                onChange={e => setNewName(e.target.value)}
-              />
-            </Box>
-            <Box m={2}>
-              <Button variant="contained" color="secondary" onClick={saveUserName}>
-                Save changes
-              </Button>
-            </Box>
-          </Box>
-      </Dialog> */}
-      <Box m={1} display="flex" flexDirection="row" overflow="auto" alignItems="center">
-        {displayRoomMembers()}
-      </Box>
-      {/* <IconButton component="span" onClick={e => setEditDialogState(true)}>
-        <Avatar alt={user.displayName} src={user.photoURL} className={classes.large}/>
-      </IconButton> */}
+    // <Box display="flex" flexDirection="row" alignItems="center" height="10%" justifyContent="space-between">
+    //   <Dialog open={showEditDialog} onClose={handleEditDialogClose}>
+    //       <DialogTitle id="simple-dialog-title">Edit Display Name</DialogTitle>
+    //       <Box display="flex" flexDirection="column" alignItems="center">
+    //         <Box m={2}>
+    //           <TextField
+    //             value={newName}
+    //             placeholder={user.displayName}
+    //             onChange={e => setNewName(e.target.value)}
+    //           />
+    //         </Box>
+    //         <Box m={2}>
+    //           <Button variant="contained" color="secondary" onClick={saveUserName}>
+    //             Save changes
+    //           </Button>
+    //         </Box>
+    //       </Box>
+    //   </Dialog>
+    <Box mt={2} mb={1} display="flex" flexDirection="row" overflow="auto" alignItems="center">
+      {displayRoomMembers()}
     </Box>
+    //   {/* <IconButton component="span" onClick={e => setEditDialogState(true)}>
+    //     <Avatar alt={user.displayName} src={user.photoURL} className={classes.large}/>
+    //   </IconButton> */}
+    // {/* </Box> */}
   );
 }

@@ -7,7 +7,6 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
-import PersonIcon from '@material-ui/icons/Person';
 
 export default function MembersDialog(props) {
   const { onClose, selectedValue, open, members } = props;
@@ -43,5 +42,5 @@ export default function MembersDialog(props) {
 MembersDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
+  selectedValue: PropTypes.object.isRequired,
 };

@@ -9,13 +9,15 @@ import Chip from '@material-ui/core/Chip';
 import Typography from '@material-ui/core/Typography';
 import LinkIcon from '@material-ui/icons/Link';
 import IconButton from '@material-ui/core/IconButton';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 
 import MembersDialog from './MembersDialog';
 import ChatWindow from './ChatWindow';
 import SearchBar from './SearchBar';
 import YoutubePlayer from './YoutubePlayer';
 import MembersBar from './MembersBar';
-import VideoQueue from './VideoQueue';
+import Playlist from './Playlist';
 
 import { useAppState } from '../../state';
 import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
@@ -26,15 +28,17 @@ import { useParams } from 'react-router-dom';
 
 export default function YoutubeRoom() {
   const { roomId, user, setUser } = useAppState();
-  const { client, roomMaster, setRoomMaster, youtubeURL, setYoutubeURL } = useYoutubeRoomState();
-
-  const bRoomMaster = useRef(false);
+  const { client, roomMaster, setRoomMaster, youtubeURL, setYoutubeURL, playlist } = useYoutubeRoomState();
 
   const [members, setMembers] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogSelectedValue, setDialogSelectedValue] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
-  const [tooltipTitle, setTooltipTitle] = useState('Copy Room Link');
+  // const [tooltipTitle, setTooltipTitle] = useState('Copy Room Link');
+  const [autoplay, setAutoplay] = useState(false);
+
+  const bRoomMaster = useRef(false);
+  const autoplayChecked = useRef(false);
 
   const { URLRoomName } = useParams();
 
@@ -64,25 +68,30 @@ export default function YoutubeRoom() {
 
   useEffect(() => {
     if (youtubeURL) {
-      getVideoTitle().then(title => {
-        setVideoTitle(title);
+      getVideoInfo(youtubeURL).then(info => {
+        const { title } = info;
+        setVideoTitle(title || '');
       });
     }
   }, [youtubeURL]);
 
-  const getVideoTitle = async () => {
+  const getVideoInfo = async videoUrl => {
     const {
       data: { items },
     } = await youtube.get('/videos', {
       params: {
-        id: youtubeURL,
+        id: videoUrl,
       },
     });
     const {
-      snippet: { title },
+      snippet: {
+        title,
+        thumbnails: {
+          default: { url },
+        },
+      },
     } = items[0];
-    console.log('title', title);
-    return title || '';
+    return { title, thumbnail: url };
   };
 
   const isRoomMaster = (rm, usr) => rm.memberId && rm.memberId === usr.userId;
@@ -111,6 +120,16 @@ export default function YoutubeRoom() {
   const onChangeRoomMaster = rm => {
     bRoomMaster.current = false;
     client.changeRoomMaster(roomId.current, rm);
+  };
+
+  const onSendVideo = url => {
+    client.changeVideo(roomId.current, url);
+  };
+
+  const onChangePlaylist = id => {
+    getVideoInfo(id).then(info => {
+      client.changePlaylist(roomId.current, [{ id, ...info }, ...playlist]);
+    });
   };
 
   /*
@@ -146,15 +165,15 @@ export default function YoutubeRoom() {
     setDialogSelectedValue(value);
   };
 
-  const handleCopyLink = e => {
-    const dummy = document.createElement('input');
-    document.body.appendChild(dummy);
-    dummy.value = window.location.href;
-    dummy.select();
-    document.execCommand('copy');
-    document.body.removeChild(dummy);
-    setTooltipTitle('Link Copied');
-  };
+  // const handleCopyLink = e => {
+  //   const dummy = document.createElement('input');
+  //   document.body.appendChild(dummy);
+  //   dummy.value = window.location.href;
+  //   dummy.select();
+  //   document.execCommand('copy');
+  //   document.body.removeChild(dummy);
+  //   setTooltipTitle('Link Copied');
+  // };
 
   // const displayRoomMembers = () => {
   //   let users = members.filter(m => m.memberId !== user.userId);
@@ -174,11 +193,11 @@ export default function YoutubeRoom() {
   // }
 
   return (
-    <Box display="flex" width="80%" m={1}>
-      <Box display="flex" flexDirection="column" width="70%" mr={1}>
+    <Box display="flex" width="85%" m={1}>
+      <Box display="flex" flexDirection="column" width="75%" mr={1}>
         <Box display="flex" alignItems="center" m={1} pb={1} borderBottom={1}>
-          <SearchBar />
-          <Box m={1}>
+          {/* <SearchBar onSearchHandler={onSendVideo} searchText={"Youtube URL"} search={true}/> */}
+          <Box mx={1} mb={1} display="flex" alignItems="center">
             <Tooltip title="Only Room Master have playback control">
               {isRoomMaster(roomMaster, user) ? (
                 <Chip icon={<FlagIcon />} label="Room Master" onClick={handleChipClick} />
@@ -186,14 +205,20 @@ export default function YoutubeRoom() {
                 <Chip icon={<PersonIcon />} label="Participant" />
               )}
             </Tooltip>
+            <Box ml={2}>
+              <Typography variant="body1">
+                Only Room Master can play video, skip time, toggle autoplay, and play/delete videos in playlist
+              </Typography>
+            </Box>
+            {/* <h4 style={{marginleft: '50px'}}>Only Room Master can play video, skip time, toggle autoplay, and play/delete videos in playlist</h4> */}
           </Box>
-          <Box>
+          {/* <Box>
             <Tooltip leaveDelay={1500} title={tooltipTitle} onClose={e => setTooltipTitle('Copy Room Link')}>
               <IconButton color="primary" onClick={handleCopyLink}>
                 <LinkIcon fontSize="large" />
               </IconButton>
             </Tooltip>
-          </Box>
+          </Box> */}
           <MembersDialog
             selectedValue={dialogSelectedValue}
             open={dialogOpen}
@@ -201,17 +226,38 @@ export default function YoutubeRoom() {
             members={members.filter(m => m.memberId !== user.userId)}
           />
         </Box>
-        <YoutubePlayer bRoomMaster={bRoomMaster} />
+        <YoutubePlayer bRoomMaster={bRoomMaster} autoplay={autoplayChecked} onVideoEnd={onSendVideo} />
         <Box m={1}>
           <Typography variant="h4" component="h2">
             {videoTitle}
           </Typography>
         </Box>
-        {/* <Box m={1}>
-          <VideoQueue />
-        </Box> */}
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box width={3 / 4}>
+            <SearchBar onSearchHandler={onChangePlaylist} searchText="Enter URL to add to playlist" />
+          </Box>
+          <Box width={1 / 4} display="flex" alignItems="center" justifyContent="flex-end">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={autoplay}
+                  onChange={e => {
+                    setAutoplay(e.target.checked);
+                    autoplayChecked.current = e.target.checked;
+                  }}
+                  name="checkedA"
+                  disabled={!bRoomMaster.current}
+                />
+              }
+              label="Autoplay"
+            />
+          </Box>
+        </Box>
+        <Box m={1}>
+          <Playlist />
+        </Box>
       </Box>
-      <Box display="flex" flexDirection="column" width="30%">
+      <Box display="flex" flexDirection="column" width="25%" justifyContent="space-between" maxHeight="82vh">
         {/* <Box display="flex" flexDirection="row" alignItems="center" height="8%" justifyContent="space-between">
           <Box m={1} display="flex" flexDirection="row" overflow="auto" alignItems="center"> 
             {members.map((m, i) => [

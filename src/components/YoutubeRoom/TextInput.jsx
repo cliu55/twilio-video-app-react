@@ -18,11 +18,12 @@ export default function TextInput({ textfield, messageFieldValue, setMessageFiel
       hinttext="Enter a message."
       floatinglabeltext="Enter a message."
       multiline
-      rows={4}
-      rowsMax={4}
+      rows={3}
+      rowsMax={3}
       onChange={e => setMessageFieldValue(e.target.value)}
       value={messageFieldValue}
       onKeyPress={handleKeyPress}
+      fullWidth={true}
     />
   );
 }

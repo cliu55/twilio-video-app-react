@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import Box from '@material-ui/core/Box';
-import TextField from '@material-ui/core/TextField';
 import Fab from '@material-ui/core/Fab';
 import SendIcon from '@material-ui/icons/Send';
 import Divider from '@material-ui/core/Divider';
@@ -36,13 +35,7 @@ const NoDots = styled.div`
   }
 `;
 
-const InputPanel = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 20px;
-  align-self: center;
-  border-top: 1px solid #fafafa;
-`;
+const InputPanel = styled.div``;
 
 const Scrollable = styled.div`
   max-height: 65vh;
@@ -75,7 +68,7 @@ export default function ChatWindow() {
   };
 
   const onSendMessage = () => {
-    if (messageFieldValue.trim().length == 0) return;
+    if (messageFieldValue.trim().length === 0) return;
     client.message(roomId, messageFieldValue, 'text');
     setMessageFieldValue('');
   };
@@ -94,7 +87,7 @@ export default function ChatWindow() {
   };
 
   return (
-    <Box m={1} height="90%">
+    <Box m={1} height="73vh">
       <ChatPanel>
         <Scrollable ref={panel}>
           <List>
@@ -126,19 +119,23 @@ export default function ChatWindow() {
             })}
           </List>
         </Scrollable>
-        <InputPanel>
-          <TextInput
-            textfield={textfield}
-            messageFieldValue={messageFieldValue}
-            setMessageFieldValue={setMessageFieldValue}
-            onSendMessage={onSendMessage}
-          />
-          <Fab color="primary" aria-label="add" onClick={onSendMessage} size="small" style={{ marginLeft: 20 }}>
-            <SendIcon style={{ fontSize: 18 }} />
-          </Fab>
-          <EmojiInput value={messageFieldValue} onSelection={emojiInserted} />
-          <GIFInput onSelection={onSenGif} />
-        </InputPanel>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" flexDirection="column" width={1 / 10}>
+            <EmojiInput value={messageFieldValue} onSelection={emojiInserted} />
+            <GIFInput onSelection={onSenGif} />
+          </Box>
+          <Box width={9 / 10} display="flex" alignItems="center" p={1}>
+            <TextInput
+              textfield={textfield}
+              messageFieldValue={messageFieldValue}
+              setMessageFieldValue={setMessageFieldValue}
+              onSendMessage={onSendMessage}
+            />
+            <Fab color="primary" aria-label="add" onClick={onSendMessage} size="small">
+              <SendIcon style={{ fontSize: 18 }} />
+            </Fab>
+          </Box>
+        </Box>
       </ChatPanel>
     </Box>
   );

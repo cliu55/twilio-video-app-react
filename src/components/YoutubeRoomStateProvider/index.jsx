@@ -9,10 +9,36 @@ export default function YoutubeRoomStateProvider(props) {
   const [playerReady, setPlayerReady] = useState(false);
   const [roomMaster, setRoomMaster] = useState({ memberId: '', userName: '' });
   const [client] = useState(() => socket());
+  const [loading, setLoading] = useState(0);
+  const [playlist, setPlaylist] = useState([
+    {
+      id: 'aUqXDPwsHaI',
+      title: 'RINI - Aphrodite (Audio)',
+      thumbnail: 'https://i.ytimg.com/vi/1CTced9CMMk/default.jpg',
+    },
+    {
+      id: 'coaMyxxEm5w',
+      title: 'Jeff Bernet - Changes',
+      thumbnail: 'https://i.ytimg.com/vi/1CTced9CMMk/default.jpg',
+    },
+  ]);
 
   return (
     <YoutubeRoomContext.Provider
-      value={{ player, playerReady, setPlayerReady, roomMaster, setRoomMaster, client, youtubeURL, setYoutubeURL }}
+      value={{
+        player,
+        playerReady,
+        setPlayerReady,
+        roomMaster,
+        setRoomMaster,
+        client,
+        youtubeURL,
+        setYoutubeURL,
+        playlist,
+        setPlaylist,
+        loading,
+        setLoading,
+      }}
     >
       {props.children}
     </YoutubeRoomContext.Provider>

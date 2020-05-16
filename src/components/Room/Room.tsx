@@ -7,6 +7,7 @@ const Container = styled('div')(({ theme }) => ({
   position: 'relative',
   height: '100%',
   display: 'grid',
+  marginTop: theme.spacing(1),
   gridTemplateColumns: `${theme.sidebarWidth}px 1fr`,
   gridTemplateAreas: '". participantList"',
   [theme.breakpoints.down('xs')]: {

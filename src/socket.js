@@ -2,7 +2,7 @@ const io = require('socket.io-client');
 
 export default function() {
   const socket = io.connect('http://localhost:8080');
-  // const socket = io.connect('https://2644cf17.ngrok.io');
+  // const socket = io.connect('https://ce9339a8.ngrok.io');
 
   function registerHandler(eventName, onDataReceived) {
     socket.on(eventName, onDataReceived);
@@ -37,6 +37,10 @@ export default function() {
     socket.emit('changeMemberInfo', { chatroomName, user });
   }
 
+  function changePlaylist(chatroomName, list) {
+    socket.emit('changePlaylist', { chatroomName, list });
+  }
+
   function join(chatroomName, user, cb) {
     socket.emit('join', chatroomName, user, cb);
   }
@@ -54,6 +58,7 @@ export default function() {
     changeVideoTime,
     changeRoomMaster,
     changeMemberInfo,
+    changePlaylist,
     join,
     leave,
   };
