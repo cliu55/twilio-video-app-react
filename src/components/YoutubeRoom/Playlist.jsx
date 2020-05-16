@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -41,7 +41,7 @@ function Video({ video, index, handlePlay, handleDelete }) {
             <Box mr={1}>
               <h2>{index + 1}</h2>
             </Box>
-            <img src={video.thumbnail} />
+            <img src={video.thumbnail} alt={video.title} />
             <Box ml={1}>
               <h2>{video.title}</h2>
             </Box>
@@ -80,31 +80,19 @@ export default function Playlist() {
   }, [client, playlist]);
 
   const onPlaylistChange = videos => {
-    // console.log("comparing", videos, playlist, videos == playlist)
-    // if(videos == playlist) {
-    //   return;
-    // }
-    // console.log("onReceiveList", videos);
-    // setState({ videos });
-
     setPlaylist(videos);
   };
 
   const handlePlay = id => {
-    console.log(playerReady, 'readys');
     if (playerReady) {
       player.current.stopVideo();
     }
 
-    // setTimeout(() => {
-    console.log('play', id);
     handleDelete(id);
     client.changeVideo(roomId.current, id);
-    // }, 5000);
   };
 
   const handleDelete = id => {
-    console.log('delteEvent', id);
     const videos = playlist.filter(video => video.id !== id);
     setPlaylist(videos);
     client.changePlaylist(roomId.current, videos);
@@ -121,7 +109,6 @@ export default function Playlist() {
 
     const videos = reorder(playlist, result.source.index, result.destination.index);
 
-    console.log('reorder', videos);
     setPlaylist(videos);
     client.changePlaylist(roomId.current, videos);
   }

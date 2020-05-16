@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import url from 'url';
 import { makeStyles, fade } from '@material-ui/core/styles';
 
-import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
-import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import InputBase from '@material-ui/core/InputBase';
 
-import { useAppState } from '../../state';
 import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 
 const useStyles = makeStyles(theme => ({
@@ -47,22 +44,14 @@ const useStyles = makeStyles(theme => ({
 export default function SearchBar({ onSearchHandler, searchText, search = false }) {
   const classes = useStyles();
 
-  const {
-    roomId: { current: roomId },
-  } = useAppState();
-  const { client, playerReady } = useYoutubeRoomState();
+  const { playerReady } = useYoutubeRoomState();
   const [urlFieldValue, setUrlFieldValue] = useState('');
-
-  // const onSendVideo = url => {
-  //   client.changeVideo(roomId, url);
-  // };
 
   const onSearch = () => {
     // Determine if pressed key is ENTER
     const { v } = url.parse(urlFieldValue, true).query;
     setUrlFieldValue('');
     if (v) {
-      // onSendVideo(v);
       onSearchHandler(v);
     }
   };

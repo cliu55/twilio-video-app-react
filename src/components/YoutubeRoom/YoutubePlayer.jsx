@@ -17,7 +17,6 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
     youtubeURL,
     setYoutubeURL,
     playlist,
-    setPlaylist,
     setLoading,
   } = useYoutubeRoomState();
   const prevTime = useRef(0);
@@ -77,8 +76,6 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
 
   useEffect(() => {
     if (playerReady && youtubeURL) {
-      // player.current.loadVideoById(youtubeURL);
-      // player.current.stopVideo();
       player.current.cueVideoById(youtubeURL);
     }
   }, [youtubeURL, playerReady]);
@@ -95,6 +92,11 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
 
   const onVideoUrlReceived = newUrl => {
     if (!playerReady) return;
+    //This piece of junk code is to give the player to receive stop video state before loading new youtube URL
+    //Otherwise it might trick logic into thinking user that paused
+    //Ex: when a video is playing and someone load another video, or room master plays from playlist
+    //The state change is 2 -> -1 > 5, this will trick logic into thinking user that paused
+    //Because user's player will have to first pause(2) before loading new video
     setLoading(20);
     setTimeout(() => {
       setLoading(50);
@@ -110,17 +112,13 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
     // and someone in the room change the video and play, then when the
     // user unpause the video they
     // leaderPaused.current = false;
-    console.log('url received', bRoomMaster.current, autoplay.current);
   };
 
   const onVideoStateReceived = state => {
     if (!playerReady || state === player.current.getPlayerState() || isRoomMaster(roomMaster, user)) return;
-    const currState = player.current.getPlayerState();
-    console.log('state received', currState, leaderPaused.current, userPaused.current);
-    // if user's playback is paused or buffering and room master didn't initiate this state don't do anything
-    // if ((currState === 2 || currState === 3) && !leaderPaused.current) return;
+    // if user's playback is paused and room master didn't initiate this state don't do anything
     if (userPaused.current) return;
-    // only set leaderPaused to true if Room Master paused the
+    // only set leaderPaused to true if Room Master paused or loaded a video
     leaderPaused.current = false;
     switch (state) {
       case -1: //unstarted
@@ -148,9 +146,7 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
 
   const onVideoTimeReceived = time => {
     if (!playerReady || isRoomMaster(roomMaster, user)) return;
-    const currState = player.current.getPlayerState();
-    // if user's playback is paused or buffering and room master didn't initiate this state don't do anything
-    // if (currState === 2 && !leaderPaused.current) return;
+    // if user paused playback don't do anything
     if (userPaused.current) return;
     if (Math.round(Math.abs(player.current.getCurrentTime() - time)) > 1) {
       player.current.seekTo(time);
@@ -164,7 +160,6 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
     player.current = new window.YT.Player('player', {
       height: '100%',
       width: '100%',
-      // videoId: currentVideoUrl.current || 'Ao2qQCqRSZs',
       videoId: youtubeURL || 'Ao2qQCqRSZs',
       events: {
         onReady: onPlayerReady,
@@ -179,11 +174,15 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
   };
 
   const onPlayerStateChange = event => {
-    console.log('playerStateChange', event.data);
-    //leader didn't pause, user paused
+    //room master didn't pause, user paused
+    //Event sequence: onVideoStateReceived -> onPlayerStateChange
+    //If room master paused, onVideoStateReceived would have captured that and set leaderpaused to true
+    //So if room master didn't pause and current state is paused that means user initiated the pause
     if (!leaderPaused.current && event.data === 2) {
       userPaused.current = true;
-    } // userd was paused and now pressed play
+    } //Video was paused by ususer and now pressed play
+    //The play state can only comes from user because if userpaused is set true
+    //onVideoStateReceived will reject all state coming from room master
     else if (userPaused.current && event.data === 1) {
       userPaused.current = false;
     }
@@ -198,12 +197,12 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
         onSendVideoState(event.data);
         break;
       case 0: //ended
-        console.log('ended', autoplay, currPlaylist);
+        //If autoplay is not on, don't do anything
         if (autoplay.current && currPlaylist.current.length) {
           onVideoEnd(currPlaylist.current[0].id);
-          console.log(roomId.current, 'roomIDs');
           client.changePlaylist(roomId.current, currPlaylist.current.slice(1));
         }
+        break;
       case 1: //playing
       case 2: //paused
       case 3: //buffering

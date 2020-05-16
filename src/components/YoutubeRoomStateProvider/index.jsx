@@ -10,18 +10,7 @@ export default function YoutubeRoomStateProvider(props) {
   const [roomMaster, setRoomMaster] = useState({ memberId: '', userName: '' });
   const [client] = useState(() => socket());
   const [loading, setLoading] = useState(0);
-  const [playlist, setPlaylist] = useState([
-    {
-      id: 'aUqXDPwsHaI',
-      title: 'RINI - Aphrodite (Audio)',
-      thumbnail: 'https://i.ytimg.com/vi/1CTced9CMMk/default.jpg',
-    },
-    {
-      id: 'coaMyxxEm5w',
-      title: 'Jeff Bernet - Changes',
-      thumbnail: 'https://i.ytimg.com/vi/1CTced9CMMk/default.jpg',
-    },
-  ]);
+  const [playlist, setPlaylist] = useState([]);
 
   return (
     <YoutubeRoomContext.Provider

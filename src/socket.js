@@ -13,7 +13,6 @@ export default function() {
   }
 
   function message(chatroomName, message, type) {
-    console.log('message', message);
     socket.emit('message', { chatroomName, message, type });
   }
 

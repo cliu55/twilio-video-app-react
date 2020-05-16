@@ -27,9 +27,6 @@ export default function MembersDialog(props) {
           <ListItem button onClick={() => handleListItemClick(member)} key={member.memberId}>
             <ListItemAvatar>
               <Avatar src={member.photoURL} />
-              {/* <Avatar>
-                <PersonIcon />
-              </Avatar> */}
             </ListItemAvatar>
             <ListItemText primary={member.userName} />
           </ListItem>

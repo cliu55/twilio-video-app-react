@@ -35,15 +35,12 @@ const NoDots = styled.div`
   }
 `;
 
-const InputPanel = styled.div``;
-
 const Scrollable = styled.div`
   max-height: 65vh;
   overflow: auto;
 `;
 
 export default function ChatWindow() {
-  // TODO: user for changing names?
   const {
     roomId: { current: roomId },
   } = useAppState();

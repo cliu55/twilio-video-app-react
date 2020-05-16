@@ -1,12 +1,11 @@
-import React, { MouseEvent, ChangeEvent, FormEvent, useState, useEffect } from 'react';
-import { createStyles, makeStyles, Theme, fade } from '@material-ui/core/styles';
+import React, { MouseEvent, useState, useEffect } from 'react';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import LocalAudioLevelIndicator from './LocalAudioLevelIndicator/LocalAudioLevelIndicator';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 import LinkIcon from '@material-ui/icons/Link';
@@ -15,7 +14,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import VoiceChatIcon from '@material-ui/icons/VoiceChat';
 
 import ToggleFullscreenButton from './ToggleFullScreenButton/ToggleFullScreenButton';
-import Menu from './Menu/Menu';
 
 import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 import UserProfile from '../YoutubeRoom/UserProfile';
@@ -26,7 +24,6 @@ import { useParams } from 'react-router-dom';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { Typography } from '@material-ui/core';
-import FlipCameraButton from './FlipCameraButton/FlipCameraButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,7 +76,7 @@ export default function MenuBar() {
   const { isConnecting, connect } = useVideoContext();
   const roomState = useRoomState();
 
-  const [name, setName] = useState<string>(user?.displayName || '');
+  const [name] = useState<string>(user?.displayName || '');
   const [roomName, setRoomName] = useState<string>('');
   const [tooltipTitle, setTooltipTitle] = useState('Copy Room Link');
 
@@ -163,9 +160,7 @@ export default function MenuBar() {
             </div>
             <UserProfile />
             <LocalAudioLevelIndicator />
-            {/* <FlipCameraButton /> */}
             <ToggleFullscreenButton />
-            {/* <Menu /> */}
           </Box>
         </Box>
       </Toolbar>

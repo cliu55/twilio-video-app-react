@@ -6,7 +6,6 @@ import YoutubeRoom from './components/YoutubeRoom/YoutubeRoom';
 import Toolbar from '@material-ui/core/Toolbar';
 import Drawer from '@material-ui/core/Drawer';
 import Controls from './components/Controls/Controls';
-import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview';
 import MenuBar from './components/MenuBar/MenuBar';
 import ReconnectingNotification from './components/ReconnectingNotification/ReconnectingNotification';
 import Room from './components/Room/Room';
@@ -41,7 +40,7 @@ const useStyles = makeStyles(theme => ({
 export default function App() {
   const roomState = useRoomState();
   const classes = useStyles();
-  const { drawerOpen, setDrawerOpen } = useAppState();
+  const { drawerOpen } = useAppState();
 
   // Here we would like the height of the main container to be the height of the viewport.
   // On some mobile browsers, 'height: 100vh' sets the height equal to that of the screen,
@@ -49,8 +48,6 @@ export default function App() {
   // We will dynamically set the height with 'window.innerHeight', which means that this
   // will look good on mobile browsers even after the location bar opens or closes.
   const height = useHeight();
-
-  // const [drawerOpen, setDrawerOpen] = React.useState(true);
 
   return (
     <Container style={{ height }}>
@@ -68,18 +65,10 @@ export default function App() {
           >
             <Toolbar />
             <Main>
-              {/* {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />} */}
               {roomState === 'disconnected' ? null : <Room />}
               <Controls />
             </Main>
           </Drawer>
-
-          {/* <Box width="20%" m={1}>
-            <Main>
-              {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}
-              <Controls />
-            </Main>
-          </Box> */}
           <YoutubeRoom />
         </Box>
         <ReconnectingNotification />
