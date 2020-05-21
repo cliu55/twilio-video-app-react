@@ -35,6 +35,7 @@ export default function YoutubeRoom() {
 
   const bRoomMaster = useRef(false);
   const autoplayChecked = useRef(false);
+  const userPaused = useRef(false);
 
   const { URLRoomName } = useParams();
 
@@ -116,6 +117,7 @@ export default function YoutubeRoom() {
   */
   const onChangeRoomMaster = rm => {
     bRoomMaster.current = false;
+    userPaused.current = false;
     client.changeRoomMaster(roomId.current, rm);
   };
 
@@ -187,7 +189,12 @@ export default function YoutubeRoom() {
             members={members.filter(m => m.memberId !== user.userId)}
           />
         </Box>
-        <YoutubePlayer bRoomMaster={bRoomMaster} autoplay={autoplayChecked} onVideoEnd={onSendVideo} />
+        <YoutubePlayer
+          bRoomMaster={bRoomMaster}
+          autoplay={autoplayChecked}
+          onVideoEnd={onSendVideo}
+          userPaused={userPaused}
+        />
         <Box m={1}>
           <Typography variant="h4" component="h2">
             {videoTitle}

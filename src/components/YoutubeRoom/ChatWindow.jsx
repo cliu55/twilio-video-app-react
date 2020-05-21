@@ -117,7 +117,7 @@ export default function ChatWindow() {
           </List>
         </Scrollable>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" flexDirection="column" width={1 / 10}>
+          <Box display="flex" flexDirection="column" width={1 / 10} mr={1}>
             <EmojiInput value={messageFieldValue} onSelection={emojiInserted} />
             <GIFInput onSelection={onSenGif} />
           </Box>

@@ -6,7 +6,7 @@ import AspectRatio from '../AspectRatio/AspectRatio';
 import { useAppState } from '../../state';
 import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 
-export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
+export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd, userPaused }) {
   const { roomId, user } = useAppState();
   const {
     client,
@@ -22,7 +22,7 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd }) {
   const prevTime = useRef(0);
   const interval = useRef(null);
   const leaderPaused = useRef(false);
-  const userPaused = useRef(false);
+  // const userPaused = useRef(false);
   const currPlaylist = useRef([]);
 
   useEffect(() => {
