@@ -33,6 +33,7 @@ export default function UserProfile() {
   };
 
   const saveUserName = e => {
+    if (newName.trim().length === 0) return;
     setUser({ ...user, displayName: newName });
     setEditDialogState(false);
     client.changeMemberInfo(roomId.current, { ...user, displayName: newName });

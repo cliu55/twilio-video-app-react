@@ -126,7 +126,7 @@ export default function MenuBar() {
                   type="submit"
                   color="primary"
                   variant="contained"
-                  disabled={isConnecting || !name || !roomName || isFetching}
+                  disabled={isConnecting || !name || !roomId.current || isFetching}
                 >
                   Enable Video Chat
                 </Button>

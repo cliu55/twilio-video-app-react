@@ -1,9 +1,8 @@
 const io = require('socket.io-client');
 
 export default function() {
-  const socket = io.connect(process.env.REACT_APP_BACKEND_URL);
-  // const socket = io.connect('http://localhost:8080');
-  // const socket = io.connect('https://c8c8bc99.ngrok.io');
+  // const socket = io('/', {path: '/socket/', transports: ['websocket', 'polling', 'flashsocket']});
+  const socket = io.connect(process.env.REACT_APP_SOCKET_ENDPOINT);
 
   function registerHandler(eventName, onDataReceived) {
     socket.on(eventName, onDataReceived);

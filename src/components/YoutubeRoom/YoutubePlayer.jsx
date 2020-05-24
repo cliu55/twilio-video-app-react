@@ -160,7 +160,7 @@ export default function YoutubePlayer({ bRoomMaster, autoplay, onVideoEnd, userP
     player.current = new window.YT.Player('player', {
       height: '100%',
       width: '100%',
-      videoId: youtubeURL || 'Ao2qQCqRSZs',
+      videoId: youtubeURL || '-QJ4yDJSegs',
       events: {
         onReady: onPlayerReady,
         onStateChange: onPlayerStateChange,

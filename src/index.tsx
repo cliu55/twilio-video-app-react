@@ -14,6 +14,10 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import theme from './theme';
 import './types';
 import { VideoProvider } from './components/VideoProvider';
+import Unsupported from './components/YoutubeRoom/Unsupported';
+
+// @ts-ignore
+import DectectRTC from 'detectrtc';
 
 // See: https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions
 // for available connection options.
@@ -52,6 +56,10 @@ const VideoApp = () => {
   const { error, setError } = useAppState();
   const classes = useStyles();
 
+  if (DectectRTC.isMobileDevice) {
+    return <Redirect to="/unsupported" />;
+  }
+
   return (
     <div className={classes.root}>
       <VideoProvider options={connectionOptions} onError={setError}>
@@ -76,6 +84,9 @@ ReactDOM.render(
           </PrivateRoute>
           <Route path="/login">
             <LoginPage />
+          </Route>
+          <Route path="/unsupported">
+            <Unsupported />
           </Route>
           <Redirect to="/" />
         </Switch>
