@@ -4,7 +4,7 @@ import socket from '../../socket';
 export const YoutubeRoomContext = createContext(null);
 
 export default function YoutubeRoomStateProvider(props) {
-  let player = useRef(null);
+  const player = useRef(null);
   const [youtubeURL, setYoutubeURL] = useState('');
   const [playerReady, setPlayerReady] = useState(false);
   const [roomMaster, setRoomMaster] = useState({ memberId: '', userName: '' });

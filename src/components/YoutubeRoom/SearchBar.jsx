@@ -7,18 +7,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import InputBase from '@material-ui/core/InputBase';
+import Snackbar from '@material-ui/core/Snackbar';
+import CloseIcon from '@material-ui/icons/Close';
 
 import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    padding: '2px 4px',
-    marginRight: theme.spacing(1),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
   search: {
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.white, 0.15),
@@ -46,18 +40,35 @@ export default function SearchBar({ onSearchHandler, searchText, search = false 
 
   const { playerReady } = useYoutubeRoomState();
   const [urlFieldValue, setUrlFieldValue] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const youtubePaser = url => {
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    var match = url.match(regExp);
+    return match && match[7].length == 11 ? match[7] : false;
+  };
 
   const onSearch = () => {
     // Determine if pressed key is ENTER
-    const { v } = url.parse(urlFieldValue, true).query;
+    const v = youtubePaser(urlFieldValue);
     setUrlFieldValue('');
     if (v) {
       onSearchHandler(v);
+    } else {
+      setOpenSnackbar(true);
     }
   };
 
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenSnackbar(false);
+  };
+
   return (
-    <Box classname={classes.root}>
+    <Box>
       <div className={classes.search}>
         <IconButton
           aria-label="search"
@@ -76,6 +87,23 @@ export default function SearchBar({ onSearchHandler, searchText, search = false 
           onChange={e => setUrlFieldValue(e.target.value)}
           placeholder={searchText}
           inputProps={{ 'aria-label': 'search input' }}
+        />
+        <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          message="Invalid URL"
+          action={
+            <React.Fragment>
+              <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </React.Fragment>
+          }
         />
       </div>
     </Box>

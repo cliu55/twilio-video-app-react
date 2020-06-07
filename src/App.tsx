@@ -2,6 +2,7 @@ import React from 'react';
 import { styled, makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import YoutubeRoom from './components/YoutubeRoom/YoutubeRoom';
+import BottomBar from './components/YoutubeRoom/BottomBar';
 
 import Toolbar from '@material-ui/core/Toolbar';
 import Drawer from '@material-ui/core/Drawer';
@@ -72,6 +73,7 @@ export default function App() {
           <YoutubeRoom />
         </Box>
         <ReconnectingNotification />
+        <BottomBar />
       </YoutubeRoomStateProvider>
     </Container>
   );

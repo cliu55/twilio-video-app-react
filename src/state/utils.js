@@ -147,3 +147,7 @@ const photoUrls = [
 export function generatePhotoUrl() {
   return photoUrls[Math.floor(Math.random() * photoUrls.length)];
 }
+
+export function formatNumber(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}

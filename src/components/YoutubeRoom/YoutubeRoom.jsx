@@ -8,6 +8,9 @@ import Chip from '@material-ui/core/Chip';
 import Typography from '@material-ui/core/Typography';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import Snackbar from '@material-ui/core/Snackbar';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
 import MembersDialog from './MembersDialog';
 import ChatWindow from './ChatWindow';
@@ -16,8 +19,12 @@ import YoutubePlayer from './YoutubePlayer';
 import MembersBar from './MembersBar';
 import Playlist from './Playlist';
 
+import moment from 'moment';
+
 import { useAppState } from '../../state';
 import { useYoutubeRoomState } from '../YoutubeRoomStateProvider';
+
+import { formatNumber } from '../../state/utils';
 
 import youtube from './youtube';
 
@@ -29,13 +36,16 @@ export default function YoutubeRoom() {
 
   const [members, setMembers] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogSelectedValue, setDialogSelectedValue] = useState('');
-  const [videoTitle, setVideoTitle] = useState('');
+  const [dialogSelectedValue, setDialogSelectedValue] = useState({});
+  const [videoInfo, setVideoInfo] = useState({});
   const [autoplay, setAutoplay] = useState(false);
+  const [chipColor, setChipColor] = useState('primary');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const bRoomMaster = useRef(false);
   const autoplayChecked = useRef(false);
   const userPaused = useRef(false);
+  const livePressed = useRef(true);
 
   const { URLRoomName } = useParams();
 
@@ -66,8 +76,7 @@ export default function YoutubeRoom() {
   useEffect(() => {
     if (youtubeURL) {
       getVideoInfo(youtubeURL).then(info => {
-        const { title } = info;
-        setVideoTitle(title || '');
+        setVideoInfo(info || {});
       });
     }
   }, [youtubeURL]);
@@ -86,9 +95,22 @@ export default function YoutubeRoom() {
         thumbnails: {
           default: { url },
         },
+        channelTitle,
+        description,
+        publishedAt,
       },
+      statistics: { viewCount, likeCount, dislikeCount },
     } = items[0];
-    return { title, thumbnail: url };
+    return {
+      title,
+      thumbnail: url,
+      channelTitle,
+      description,
+      publishedAt,
+      viewCount,
+      likeCount,
+      dislikeCount,
+    };
   };
 
   const isRoomMaster = (rm, usr) => rm.memberId && rm.memberId === usr.userId;
@@ -125,9 +147,13 @@ export default function YoutubeRoom() {
     client.changeVideo(roomId.current, url);
   };
 
-  const onChangePlaylist = id => {
-    getVideoInfo(id).then(info => {
-      client.changePlaylist(roomId.current, [...playlist, { id, ...info }]);
+  const onChangePlaylist = videoId => {
+    if (playlist.some(({ id }) => videoId === id)) {
+      setOpenSnackbar(true);
+      return;
+    }
+    getVideoInfo(videoId).then(info => {
+      client.changePlaylist(roomId.current, [...playlist, { id: videoId, ...info }]);
     });
   };
 
@@ -164,11 +190,30 @@ export default function YoutubeRoom() {
     setDialogSelectedValue(value);
   };
 
+  const handleLiveClick = () => {
+    setChipColor('primary');
+    livePressed.current = true;
+    client.goLive(roomId.current, user.userId);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenSnackbar(false);
+  };
+
   return (
     <Box display="flex" width="85%" m={1}>
       <Box display="flex" flexDirection="column" width="75%" mr={1}>
         <Box display="flex" alignItems="center" m={1} pb={1} borderBottom={1}>
           <Box mx={1} mb={1} display="flex" alignItems="center">
+            {!isRoomMaster(roomMaster, user) ? (
+              <Box mr={1}>
+                <Chip color={chipColor} label="LIVE" onClick={handleLiveClick} />
+              </Box>
+            ) : null}
             <Tooltip title="Only Room Master have playback control">
               {isRoomMaster(roomMaster, user) ? (
                 <Chip icon={<FlagIcon />} label="Room Master" onClick={handleChipClick} />
@@ -176,9 +221,12 @@ export default function YoutubeRoom() {
                 <Chip icon={<PersonIcon />} label="Participant" />
               )}
             </Tooltip>
-            <Box ml={2}>
+            <Box ml={2} display="flex" flexDirection="column">
               <Typography variant="body1">
-                Only Room Master can play video, skip time, toggle autoplay, and play/delete videos in playlist
+                Only Room Master can toggle autoplay and play/delete videos in playlist.
+              </Typography>
+              <Typography variant="body1">
+                {!isRoomMaster(roomMaster, user) ? 'Press LIVE to re-sync video when out of sync' : ''}
               </Typography>
             </Box>
           </Box>
@@ -194,15 +242,42 @@ export default function YoutubeRoom() {
           autoplay={autoplayChecked}
           onVideoEnd={onSendVideo}
           userPaused={userPaused}
+          setChipColor={setChipColor}
+          livePressed={livePressed}
         />
-        <Box m={1}>
-          <Typography variant="h4" component="h2">
-            {videoTitle}
-          </Typography>
+        <Box m={1} display="flex" flexDirection="column">
+          <Box>
+            <Typography variant="h4" component="h2">
+              {videoInfo.title}
+            </Typography>
+          </Box>
+          <Box py={2} borderBottom={1}>
+            <Typography variant="body1" color="textSecondary">
+              {videoInfo.viewCount ? formatNumber(videoInfo.viewCount) + 'views •' : ''}{' '}
+              {videoInfo.publishedAt ? moment(videoInfo.publishedAt).format('MMMM Do, YYYY') : ''}
+            </Typography>
+          </Box>
         </Box>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
           <Box width={3 / 4}>
             <SearchBar onSearchHandler={onChangePlaylist} searchText="Enter URL to add to playlist" />
+            <Snackbar
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={handleCloseSnackbar}
+              message="This video is already in playlist"
+              action={
+                <React.Fragment>
+                  <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </React.Fragment>
+              }
+            />
           </Box>
           <Box width={1 / 4} display="flex" alignItems="center" justifyContent="flex-end">
             <FormControlLabel
